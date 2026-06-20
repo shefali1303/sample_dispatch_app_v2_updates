@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Saved Request{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Request Saved Successfully</h1>
+  <p><strong>Invoice No:</strong> {{ record.invoice_no }}</p>
+  <p><strong>Request ID:</strong> {{ record.request_id }}</p>
+  <div class="actions">
+    <a class="btn secondary" target="_blank" href="{{ url_for('invoice_html', request_id=record.request_id) }}">Preview Sample Invoice</a>
+    <a class="btn secondary" target="_blank" href="{{ url_for('packing_html', request_id=record.request_id) }}">Preview Packing List</a>
+    <a class="btn" href="{{ url_for('download_pdf', doc_type='invoice', request_id=record.request_id) }}">Download Sample Invoice PDF</a>
+    <a class="btn" href="{{ url_for('download_pdf', doc_type='packing', request_id=record.request_id) }}">Download Packing List PDF</a>
+  </div>
+</div>
+{% endblock %}

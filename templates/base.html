@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sample Dispatch Dashboard{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand"><img src="{{ url_for('static', filename='logo.png') }}" alt="Medikonda Nutrients"><span>Sample Dispatch Dashboard</span></div>
+    <nav><a href="{{ url_for('form_page') }}">New Request</a></nav>
+  </header>
+  <main class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

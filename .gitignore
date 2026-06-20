@@ -1,0 +1,8 @@
+.env
+venv/
+__pycache__/
+*.pyc
+data/generated/
+data/records/
+data/sample_requests.csv
+google_credentials.json

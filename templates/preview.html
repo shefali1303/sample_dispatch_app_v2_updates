@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Preview Request{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Manual Preview Before Saving</h1>
+  <p>Check all details. After saving, the request will be stored, PDFs will be generated with the v15 template, and email will be sent to the fixed recipient.</p>
+</div>
+<div class="summary">
+  <div class="summary-box">
+    <h3>Customer & Shipping</h3>
+    <div class="summary-row"><span>Invoice No</span><span>{{ record.invoice_no }}</span></div>
+    <div class="summary-row"><span>Invoice Date</span><span>{{ record.invoice_date }}</span></div>
+    <div class="summary-row"><span>Client Name</span><span>{{ record.client_name }}</span></div>
+    <div class="summary-row"><span>Email</span><span>{{ record.email }}</span></div>
+    <div class="summary-row"><span>Phone</span><span>{{ record.phone_number }}</span></div>
+    <div class="summary-row"><span>Port of Discharge</span><span>{{ record.port_of_discharge }}</span></div>
+    <p class="label">Ship To</p><p class="pre">{{ record.full_ship_to_address }}</p>
+    <p class="label">Bill To</p><p class="pre">{{ record.selected_bill_to }}</p>
+  </div>
+  <div class="summary-box">
+    <h3>Auto Calculation</h3>
+    <div class="summary-row"><span>Product</span><span>{{ record.product_name }}</span></div>
+    <div class="summary-row"><span>HSN</span><span>{{ record.hsn_code }}</span></div>
+    <div class="summary-row"><span>Sample Type</span><span>{{ record.sample_type }}</span></div>
+    <div class="summary-row"><span>Qty</span><span>{{ record.quantity }}</span></div>
+    <div class="summary-row"><span>Rate</span><span>{{ record.rate }}</span></div>
+    <div class="summary-row"><span>Amount</span><span>{{ record.amount_display }}</span></div>
+    <div class="summary-row"><span>Total In Words</span><span>{{ record.total_in_words }}</span></div>
+    <div class="summary-row"><span>Box</span><span>{{ record.selected_box }}</span></div>
+    <div class="summary-row"><span>Dimension</span><span>{{ record.dimension }}</span></div>
+    <div class="summary-row"><span>Net Weight</span><span>{{ record.net_weight }} kg</span></div>
+    <div class="summary-row"><span>Gross Weight</span><span>{{ record.gross_weight }} kg</span></div>
+  </div>
+</div>
+<div class="summary">
+  <div class="summary-box">
+    <h3>Sample Approval Details</h3>
+    <div class="summary-row"><span>Customer Shipping Account</span><span>{{ record.customer_shipping_account or '-' }}</span></div>
+    <div class="summary-row"><span>Service</span><span>{{ record.shipping_service or '-' }}</span></div>
+    <div class="summary-row"><span>Requested BDE</span><span>{{ record.requested_bde }}</span></div>
+    <div class="summary-row"><span>Email BDE</span><span>{{ record.email_bde }}</span></div>
+    <div class="summary-row"><span>Sample Approved By</span><span>{{ record.sample_approved_by }}</span></div>
+  </div>
+  <div class="summary-box">
+    <h3>Email Action</h3>
+    <div class="summary-row"><span>Fixed Recipient</span><span>{{ email_to }}</span></div>
+    <div class="summary-row"><span>Mode</span><span>{% if email_dry_run %}Dry run - no real email will be sent{% else %}Live email sending{% endif %}</span></div>
+    <p class="hint">Final button will save the request, generate both v15 PDFs, and send them to the fixed email recipient.</p>
+  </div>
+</div>
+<div class="card">
+  <form method="post" action="{{ url_for('save') }}" id="saveEmailForm">
+  <input type="hidden" name="payload" value='{{ record | tojson }}'>
+  <div class="actions">
+    <a class="btn secondary" href="{{ url_for('form_page') }}">Back & Edit</a>
+    <button type="submit" id="saveEmailBtn">Save, Generate & Email Documents</button>
+  </div>
+</form>
+
+<div id="dispatchLoader" class="dispatch-loader-overlay">
+  <div class="dispatch-loader-card">
+    <div class="dispatch-loader-logo-ring">
+      <div class="dispatch-loader-spinner"></div>
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Medikonda Nutrients">
+    </div>
+
+    <h2>Processing Sample Dispatch</h2>
+    <p>Your sample form is being saved securely and has been sent to the Logistics Department.</p>
+
+    <div class="dispatch-loader-progress">
+      <span></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("saveEmailForm").addEventListener("submit", function () {
+    const loader = document.getElementById("dispatchLoader");
+    const button = document.getElementById("saveEmailBtn");
+
+    loader.classList.add("active");
+    button.disabled = true;
+    button.innerText = "Processing...";
+  });
+</script>
+</div>
+{% endblock %}

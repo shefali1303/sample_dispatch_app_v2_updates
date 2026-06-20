@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ record.invoice_no }} Sample Invoice</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <!-- <link rel="stylesheet" href="../static/styles.css"> -->
+    {% if pdf_mode %}
+    <link rel="stylesheet" href="{{ css_path }}" />
+    {% else %}
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    {% endif %}
+  </head>
+  <body class="document-body">
+    <!-- <div class="pdf-actions"><button onclick="window.print()">Print</button></div> -->
+    {% if not pdf_mode %}
+    <div class="pdf-actions">
+      <button onclick="window.print()">Print</button>
+    </div>
+    {% endif %}
+
+    <section class="page v15-page" id="sample-invoice">
+      <div class="invoice-main">
+        <table class="invoice-header">
+          <colgroup>
+            <col style="width: 34%" />
+            <col style="width: 39%" />
+            <col style="width: 27%" />
+          </colgroup>
+          <tr>
+            <td class="center logo-cell">
+              <img
+  class="logo"
+  src="{% if pdf_mode %}{{ logo_path }}{% else %}{{ url_for('static', filename='logo.png') }}{% endif %}"
+  alt="Medikonda Nutrients Logo"
+/>
+            </td>
+            <td class="invoice-company">
+              <div class="bold">Medikonda Nutrients</div>
+              <div>Survey No. 805/E, Gongloor Village, Pulkal Mandal</div>
+              <div>Sangareddy Telangana 502293, India</div>
+              <div>GSTIN 36ABJFM2881R1ZE</div>
+            </td>
+            <td class="sample-title">SAMPLE<br />INVOICE</td>
+          </tr>
+        </table>
+
+        <table class="meta">
+          <colgroup>
+            <col style="width: 24%" />
+            <col style="width: 3%" />
+            <col style="width: 73%" />
+          </colgroup>
+          <tr>
+            <td class="bold">Invoice No</td>
+            <td>:</td>
+            <td>{{ record.invoice_no }}</td>
+          </tr>
+          <tr>
+            <td class="bold">Invoice Date</td>
+            <td>:</td>
+            <td>{{ record.invoice_date }}</td>
+          </tr>
+          <tr>
+            <td class="bold">Terms</td>
+            <td>:</td>
+            <td>{{ record.terms }}</td>
+          </tr>
+        </table>
+
+        <table class="billship">
+          <colgroup>
+            <col style="width: 50%" />
+            <col style="width: 50%" />
+          </colgroup>
+          <tr>
+            <th class="section-head">Bill To</th>
+            <th class="section-head">Ship To</th>
+          </tr>
+          <tr>
+            <td class="pre-text">{{ record.selected_bill_to }}</td>
+            <td class="pre-text">{{ record.full_ship_to_address }}</td>
+          </tr>
+        </table>
+
+        <table class="items">
+          <colgroup>
+            <col style="width: 8%" />
+            <col style="width: 52%" />
+            <col style="width: 13%" />
+            <col style="width: 13%" />
+            <col style="width: 14%" />
+          </colgroup>
+          <tr>
+            <th>#</th>
+            <th>Item &amp; Description</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th class="right">Amount</th>
+          </tr>
+          <tr>
+            <td class="center">1</td>
+            <td>
+              {{ record.product_name }}<br /><span class="hsn-line"
+                >HSN No: {{ record.hsn_code }}</span
+              >
+            </td>
+            <td>{{ record.quantity }} kg</td>
+            <td>{{ record.rate }}</td>
+            <td class="right bold">{{ record.amount_display }}</td>
+          </tr>
+        </table>
+
+        <table class="total-area">
+          <colgroup>
+            <col style="width: 56%" />
+            <col style="width: 44%" />
+          </colgroup>
+          <tr>
+            <td class="terms">
+              <span class="bold">Total In Words</span><br />{{
+              record.total_in_words }}
+            </td>
+            <td>
+              <div class="subtotal-box">
+                <span class="bold">Sub Total</span>
+                <span class="right-float">{{ record.sub_total_display }}</span>
+              </div>
+              <div class="sign-note">
+                Computer generated, Signature not required.
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="page-no">1</div>
+    </section>
+  </body>
+</html>

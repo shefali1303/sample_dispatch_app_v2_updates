@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}New Sample Dispatch Request{% endblock %}
+{% block content %}
+<form method="post" action="{{ url_for('preview') }}" enctype="multipart/form-data">
+  <div class="card">
+    <h1>Sample Dispatch Form - Updated Version</h1>
+    <p>Single product per request. One Sample Invoice and one Packing List will be generated using the v15 document template.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Client Details</h2>
+    <div class="grid">
+      <div class="field"><label>Client Name *</label><input name="client_name" required placeholder="Substance Elements"></div>
+      <div class="field"><label>Email *</label><input type="email" name="email" required placeholder="client@example.com"></div>
+      <div class="field"><label>Phone Number *</label><input name="phone_number" required></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Shipping Details</h2>
+    <div class="grid">
+      <div class="field"><label>Company Name *</label><input name="company_name" required placeholder="Substance Elements"></div>
+      <div class="field"><label>Country *</label><input name="country" required placeholder="India"></div>
+      <div class="field"><label>Address Line *</label><input name="address_line" required placeholder="Friends Colony Street No-2"></div>
+      <div class="field"><label>City *</label><input name="city" required placeholder="Hyderabad"></div>
+      <div class="field"><label>Postal / Zip Code *</label><input name="postal_code" required placeholder="500089"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Product Details</h2>
+    <div class="grid">
+      <div class="field"><label>Product Name *</label><input name="product_name" required placeholder="Moringa Powder"></div>
+      <div class="field"><label>HSN Code * <span class="hint">default value, editable</span></label><input name="hsn_code" required value="{{ default_hsn_code }}"></div>
+      <div class="field"><label>Quantity / Net Weight *</label><input type="number" name="quantity" required step="0.5" min="0.5" placeholder="1.0"></div>
+      <div class="field">
+        <label>Sample Type *</label>
+        <select name="sample_type" required>
+          <option value="Free Sample">Free Sample</option>
+          <option value="Paid Sample">Paid Sample</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Select Box / Dimension</label>
+        <select name="selected_box">
+          <option value="box2">Box 2 - default for manual quantity</option>
+          {% for key, box in boxes.items() %}<option value="{{ key }}">{{ box.label }} - {{ box.dimension }}</option>{% endfor %}
+        </select>
+        <div class="hint">Qty 0.5 auto selects Box 1. Qty 1 auto selects Box 2. For 20-25 kg select Box 3 or Box 4.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Sample Approval Details</h2>
+    <div class="grid">
+      <div class="field"><label>Customer Shipping Account</label><input name="customer_shipping_account" placeholder="123456789"></div>
+      <div class="field">
+        <label>Service</label>
+        <select name="shipping_service">
+          <option value="FedEx">FedEx</option>
+          <option value="UPS">UPS</option>
+          <option value="DHL">DHL</option>
+        </select>
+      </div>
+      <div class="field"><label>Requested BDE *</label><input name="requested_bde" required placeholder="Deva"></div>
+      <div class="field"><label>Email BDE *</label><input type="email" name="email_bde" required placeholder="deva@reveda.com"></div>
+      <div class="field"><label>Sample Approved By *</label><input name="sample_approved_by" required></div>
+      <div class="field"><label>COA File Link</label><input name="coa_file_link" placeholder="Paste Google Drive / file link"></div>
+      <div class="field"><label>Additional Details</label><textarea name="additional_details"></textarea></div>
+    </div>
+  </div>
+
+  <div class="card">
+  <h2>5. Document Settings</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Bill To</label>
+      <input value="{{ bill_to_display }}" readonly>
+    </div>
+  </div>
+  <div class="hint">Bill To is fixed as REVEDA. Full address will be added automatically in documents.</div>
+  <div class="actions"><button type="submit">Preview Calculation & Documents</button></div>
+</div>
+</form>
+{% endblock %}

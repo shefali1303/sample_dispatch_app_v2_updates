@@ -1,0 +1,64 @@
+:root{--text:#000;--border:#222;--soft:#f5f6f8;--muted:#555}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#000;background:#eef1f4}.app-header{height:68px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:9}.brand{display:flex;align-items:center;gap:18px;font-weight:700}.brand img{height:42px;width:auto}.app-header a{color:#000;text-decoration:none;border:1px solid #ccc;border-radius:8px;padding:9px 14px}.container{max-width:1180px;margin:28px auto;padding:0 18px}.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px rgba(0,0,0,.06)}h1{margin:0 0 18px;font-size:26px}h2{font-size:18px;margin:0 0 18px;border-bottom:1px solid #eee;padding-bottom:10px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-weight:700;font-size:14px}.field input,.field select,.field textarea{border:1px solid #bbb;border-radius:8px;padding:11px 12px;font-size:15px;background:#fff;color:#000}.field textarea{min-height:90px;resize:vertical}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.btn,button{background:#000;color:#fff;border:1px solid #000;border-radius:8px;padding:12px 16px;font-size:15px;text-decoration:none;cursor:pointer;display:inline-block}.btn.secondary{background:#fff;color:#000}.hint{font-size:13px;color:#555;margin-top:4px}.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.summary-box{border:1px solid #ddd;border-radius:10px;padding:16px;background:#fff}.summary-box h3{margin:0 0 12px;font-size:16px}.summary-row{display:flex;justify-content:space-between;border-bottom:1px dashed #ddd;padding:7px 0;gap:15px}.summary-row span:first-child{font-weight:700}.pre{white-space:pre-line;line-height:1.5}.flash{padding:14px 16px;border:1px solid #c7dfc8;background:#effaf0;border-radius:10px;margin-bottom:18px}.doc-page{width:210mm;min-height:297mm;background:#fff;margin:0 auto 24px;padding:14mm 14mm;color:#000}.doc-page *{color:#000}.doc-header{display:flex;align-items:flex-start;gap:28px;margin-bottom:14px}.doc-header img{height:58px;width:auto}.company-name{font-size:20px;font-weight:700;margin-bottom:4px}.company-address{font-size:13px;line-height:1.35}.doc-title{text-align:center;font-size:31px;font-weight:700;letter-spacing:.5px;margin:14px 0 16px}.info-table,.items-table{width:100%;border-collapse:collapse;table-layout:fixed}.info-table td,.info-table th,.items-table td,.items-table th{border:1px solid #222;padding:7px 8px;vertical-align:top;font-size:14px}.items-table th{font-weight:700;text-align:left}.label{font-weight:700}.right{text-align:right}.center{text-align:center}.stamp-space{height:74px}.sign-space{height:44px}.section-gap{margin-top:14px}.no-border{border:none!important}.pdf-actions{display:flex;gap:12px;justify-content:center;margin:18px 0}@media print{body{background:#fff}.app-header,.pdf-actions{display:none}.container{max-width:none;margin:0;padding:0}.doc-page{box-shadow:none;margin:0;padding:12mm 12mm;page-break-after:always}.card{box-shadow:none;border:none}}@media(max-width:800px){.grid,.grid-3,.summary{grid-template-columns:1fr}.app-header{height:auto;padding:15px;align-items:flex-start}.brand img{height:36px}}
+
+/* Version 1 document templates - based on verified template v15 */
+@page { size: A4; margin: 0; }
+.document-body { margin:0; background:#e9edf2; font-family:Arial, Helvetica, sans-serif; color:#000000; }
+.document-body * { box-sizing:border-box; color:#000000; }
+.document-body table { width:100%; border-collapse:collapse; table-layout:fixed; }
+.document-body td, .document-body th { border:1px solid #2f2f2f; padding:5px 6px; vertical-align:top; }
+.v15-page { width:210mm; min-height:297mm; margin:0 auto 30px; background:#ffffff; padding:18mm 17mm; box-shadow:0 6px 28px rgba(0,0,0,.16); position:relative; }
+.center { text-align:center; }
+.right { text-align:right; }
+.bold { font-weight:700; }
+.pre-text { white-space:pre-line; }
+.logo { display:block; max-width:205px; height:auto; }
+.logo-small { max-width:220px; }
+.invoice-main { border:0; padding:0; }
+.invoice-main > table { margin-bottom:8px; }
+.invoice-main > table:last-child { margin-bottom:0; }
+.invoice-header { height:104px; }
+.invoice-header td { border-color:#b8b8b8; }
+.logo-cell { vertical-align:middle; }
+.logo-cell .logo { margin:0 auto; }
+.invoice-company { font-size:14px; line-height:1.28; padding-left:28px; color:#000000; }
+.sample-title { font-size:30px; line-height:1.05; letter-spacing:.5px; text-align:right; font-weight:400; }
+.meta td { font-size:14px; line-height:1.25; padding:6px 8px; }
+.section-head { background:#f2f3f5; font-weight:700; font-size:14px; padding:7px 8px; text-align:left; }
+.billship td { height:92px; font-size:14px; line-height:1.28; padding:9px 8px; }
+.items th { background:#f2f3f5; font-size:14px; padding:8px 6px; font-weight:700; text-align:left; }
+.items td { font-size:14px; height:58px; padding:8px 6px; }
+.hsn-line { display:block; margin-left:0; text-align:left; font-weight:600; }
+.total-area td { border-color:#b8b8b8; }
+.terms { height:125px; font-size:14px; line-height:1.28; padding:10px 8px; }
+.subtotal-box { height:58px; font-size:14px; padding:10px 8px; border-bottom:1px solid #b8b8b8; }
+.right-float { float:right; }
+.sign-note { height:115px; font-size:14px; vertical-align:bottom; text-align:center; padding:76px 8px 12px; }
+.page-no { position:absolute; right:17mm; bottom:12mm; font-size:9px; }
+
+/* Packing list v15 */
+#packing-list { padding-top:14mm; padding-bottom:12mm; }
+.packing-top { height:120px; position:relative; }
+.packing-name { color:#000000; font-weight:700; font-size:14px; margin-bottom:14px; }
+.packing-address { color:#000000; font-size:14px; line-height:2.1; }
+.packing-logo-holder { position:absolute; right:0; top:0; }
+.top-rule { border-top:1px solid #aaa; margin:14px 0 42px; }
+.pack-box { border:1px solid #2f2f2f; }
+.pack-title { font-size:18px; line-height:1.1; font-weight:700; height:43px; display:flex; align-items:center; justify-content:center; text-align:center; border-bottom:1px solid #2f2f2f; }
+.shipper { height:116px; font-size:12px; line-height:1.24; border-bottom:1px solid #2f2f2f; padding:6px 8px; }
+.pack-info td { height:122px; font-size:14px; line-height:1.14; }
+.pack-info .col-head { display:block; font-weight:700; margin-bottom:8px; font-size:14px; }
+.ports { font-size:16px!important; line-height:1.55!important; }
+.fda-reg { font-size:12px; line-height:1.25; font-weight:700; }
+.pack-meta td { height:32px; font-size:12px; line-height:1.12; }
+.product-row { height:31px; font-size:14px; font-weight:700; border-left:1px solid #2f2f2f; border-right:1px solid #2f2f2f; border-bottom:1px solid #2f2f2f; padding:7px 8px; }
+.spacer-box { height:52px; border-left:1px solid #2f2f2f; border-right:1px solid #2f2f2f; border-bottom:1px solid #2f2f2f; }
+.pack-table th { font-size:12px; line-height:1.15; font-weight:700; text-align:center; background:#f2f3f5; padding:7px 5px; }
+.pack-table td { height:46px; font-size:12px; line-height:1.2; text-align:center; padding:7px 5px; }
+.pack-table .item-text { text-align:left; font-size:12px; }
+.pack-table .total-row td { height:29px; font-size:12px; font-weight:700; }
+.sign-footer { margin-top:18px; font-size:14px; line-height:1.45; font-weight:700; }
+@media print {
+  .document-body { background:#fff; }
+  .app-header, .pdf-actions { display:none!important; }
+  .v15-page { box-shadow:none; margin:0; width:210mm; min-height:297mm; page-break-after:always; }
+}
