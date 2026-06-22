@@ -7,6 +7,8 @@ import mimetypes
 import os
 import re
 import smtplib
+import base64
+import resend
 import uuid
 from datetime import datetime
 from email.message import EmailMessage
@@ -290,15 +292,15 @@ def send_documents_email(record: Dict[str, Any], attachment_paths: Iterable[Path
     if not truthy(os.getenv("EMAIL_ENABLED", "true")):
         return {"status": "disabled", "message": "Email sending is disabled."}
 
-    email_to = get_email_recipient()
-    email_from = os.getenv("EMAIL_FROM", os.getenv("EMAIL_USER", "")).strip()
-    email_user = os.getenv("EMAIL_USER", "").strip()
-    email_password = os.getenv("EMAIL_PASSWORD", "").strip()
-    email_host = os.getenv("EMAIL_HOST", "smtp.gmail.com").strip()
-    email_port = int(os.getenv("EMAIL_PORT", "587"))
     dry_run = truthy(os.getenv("EMAIL_DRY_RUN", "true"))
+    email_provider = os.getenv("EMAIL_PROVIDER", "resend").strip().lower()
+
+    email_to = get_email_recipient()
+    email_from = os.getenv("EMAIL_FROM", "").strip()
+    recipients = [email.strip() for email in email_to.split(",") if email.strip()]
 
     subject = f"Sample Dispatch Documents - {record.get('invoice_no')} - {record.get('company_name')}"
+
     body = f"""Dear Team,
 
 Please find attached the sample dispatch documents.
@@ -312,8 +314,8 @@ Ship To Country: {record.get('country')}
 Sample Approval details:
 1. Customer Shipping Account: {record.get('customer_shipping_account') or '-'}
    Service: {record.get('shipping_service') or '-'}
-2. Requested (Business Development Executive): {record.get('requested_bde') or '-'}
-   Email (Business Development Executive): {record.get('email_bde') or '-'}
+2. Requested (BDE): {record.get('requested_bde') or '-'}
+   Email (BDE): {record.get('email_bde') or '-'}
 3. Sample Approved By: {record.get('sample_approved_by') or '-'}
    Sample Type: {record.get('sample_type') or '-'}
 
@@ -326,6 +328,7 @@ Sample Dispatch System
 """
 
     attachment_paths = [Path(path) for path in attachment_paths]
+
     if dry_run:
         return {
             "status": "dry_run",
@@ -337,31 +340,60 @@ Sample Dispatch System
 
     missing = [path.name for path in attachment_paths if not path.exists()]
     if missing:
-        return {"status": "failed", "message": "Missing attachment(s): " + ", ".join(missing)}
-    if not email_to or not email_from or not email_user or not email_password:
-        return {"status": "failed", "message": "Email settings are incomplete. Check .env."}
+        return {"status": "failed", "message": "Missing attachment(s): " + ", ".join(missing), "to": email_to}
 
-    msg = EmailMessage()
-    msg["From"] = email_from
-    msg["To"] = email_to
-    msg["Subject"] = subject
-    msg.set_content(body)
+    if not email_from:
+        return {"status": "failed", "message": "EMAIL_FROM is missing.", "to": email_to}
 
-    for path in attachment_paths:
-        mime_type, _ = mimetypes.guess_type(path.name)
-        maintype, subtype = (mime_type or "application/pdf").split("/", 1)
-        msg.add_attachment(path.read_bytes(), maintype=maintype, subtype=subtype, filename=path.name)
+    if not recipients:
+        return {"status": "failed", "message": "EMAIL_TO is missing.", "to": email_to}
+
+    if email_provider != "resend":
+        return {
+            "status": "failed",
+            "message": "EMAIL_PROVIDER must be set to resend in Render Environment.",
+            "to": email_to,
+        }
+
+    resend_api_key = os.getenv("RESEND_API_KEY", "").strip()
+    if not resend_api_key:
+        return {"status": "failed", "message": "RESEND_API_KEY is missing.", "to": email_to}
 
     try:
-        with smtplib.SMTP(email_host, email_port, timeout=30) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(email_user, email_password)
-            server.send_message(msg)
-        return {"status": "sent", "message": f"Email sent to {email_to}.", "to": email_to}
-    except Exception as exc:
-        return {"status": "failed", "message": str(exc), "to": email_to}
+        resend.api_key = resend_api_key
 
+        def file_to_base64(path: Path) -> str:
+            with path.open("rb") as file:
+                return base64.b64encode(file.read()).decode("utf-8")
+
+        params = {
+            "from": email_from,
+            "to": recipients,
+            "subject": subject,
+            "text": body,
+            "attachments": [
+                {
+                    "filename": path.name,
+                    "content": file_to_base64(path),
+                }
+                for path in attachment_paths
+            ],
+        }
+
+        resend.Emails.send(params)
+
+        return {
+            "status": "sent",
+            "message": f"Email sent to {email_to}.",
+            "to": email_to,
+        }
+
+    except Exception as exc:
+        return {
+            "status": "failed",
+            "message": str(exc),
+            "to": email_to,
+        }
 
 def finalize_and_email_record(record: Dict[str, Any]) -> Dict[str, Any]:
     record["document_status"] = "Saved"
