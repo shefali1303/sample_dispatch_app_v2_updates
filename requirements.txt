@@ -5,3 +5,4 @@ gspread==6.1.4
 google-auth==2.33.0
 python-dotenv==1.0.1
 gunicorn
+resend
