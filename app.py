@@ -20,18 +20,23 @@ DATA_DIR = BASE_DIR / "data"
 GENERATED_DIR = DATA_DIR / "generated"
 RECORDS_CSV = DATA_DIR / "sample_requests.csv"
 RECORDS_JSON_DIR = DATA_DIR / "records"
+SETTINGS_JSON = DATA_DIR / "settings.json"
 
 RECORDS_JSON_DIR.mkdir(parents=True, exist_ok=True)
 GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
 load_dotenv(BASE_DIR / ".env")
 
+DEFAULT_COA_FILE_LINK = os.getenv(
+    "DEFAULT_COA_FILE_LINK",
+    "https://drive.google.com/drive/folders/1Gvs40ZHAKa7NxZR6s-zezycXQNfKCpWg?usp=drive_link",
+).strip()
+
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
 
 BILL_TO_DISPLAY = "REVEDA"
-FIXED_BILL_TO = "TO THE ORDER\nREVEDA LLC\n15526 Black pepper ln,\nodessa, Florida, 33556,\nUSA"
-
+FIXED_BILL_TO = "TO THE ORDER\nREVEDA LLC\n15526 BLACK PEPPER LN,\nODESSA, FLORIDA, 33556,\nUSA"
 DEFAULT_HSN_CODE = "2921.29"
 
 BOXES = {
@@ -112,15 +117,52 @@ CSV_COLUMNS = [
 ]
 
 
-def truthy(value: str | None) -> bool:
-    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+def clean(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def load_settings() -> Dict[str, Any]:
+    if not SETTINGS_JSON.exists():
+        return {}
+
+    try:
+        return json.loads(SETTINGS_JSON.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_settings(settings: Dict[str, Any]) -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    SETTINGS_JSON.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+
+
+def get_default_coa_file_link() -> str:
+    settings = load_settings()
+    saved_link = clean(settings.get("default_coa_file_link", ""))
+
+    if saved_link:
+        return saved_link
+
+    return clean(DEFAULT_COA_FILE_LINK)
+
+
+def set_default_coa_file_link(link: str) -> None:
+    settings = load_settings()
+    settings["default_coa_file_link"] = clean(link)
+    save_settings(settings)
+
+
+def remove_default_coa_file_link() -> None:
+    settings = load_settings()
+    settings["default_coa_file_link"] = ""
+    save_settings(settings)
 
 
 def get_email_recipient() -> str:
-    return os.getenv("EMAIL_TO", "shiva@reveda.com").strip()
+    return os.getenv("EMAIL_TO", "help@medikonda.com").strip()
 
 
-def parse_float(value: str, default: float = 0.0) -> float:
+def parse_float(value: Any, default: float = 0.0) -> float:
     try:
         return float(str(value).strip())
     except Exception:
@@ -154,6 +196,7 @@ def number_to_words(n: int) -> str:
         "Eighteen",
         "Nineteen",
     ]
+
     tens = [
         "",
         "",
@@ -188,7 +231,7 @@ def number_to_words(n: int) -> str:
 
 def amount_to_words(amount: float) -> str:
     dollars = int(round(amount))
-    return f"United States Dollar {number_to_words(dollars)}"
+    return f"{number_to_words(dollars)} US Dollar"
 
 
 def calculate_invoice(quantity: float) -> Dict[str, Any]:
@@ -244,32 +287,49 @@ def calculate_packing(quantity: float, manual_box: str | None) -> Dict[str, Any]
     }
 
 
-def get_next_invoice_no() -> str:
-    start = int(os.getenv("START_INVOICE_NUMBER", "521"))
-    max_no = start - 1
+def generate_invoice_no() -> str:
+    start_number = 521
+    max_number = start_number - 1
 
     if RECORDS_CSV.exists():
-        with RECORDS_CSV.open("r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
+        try:
+            with RECORDS_CSV.open("r", newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
 
-            for row in reader:
-                match = re.search(r"INV-SMP(\d+)", row.get("invoice_no", ""))
+                for row in reader:
+                    invoice_no = clean(row.get("invoice_no", ""))
 
-                if match:
-                    max_no = max(max_no, int(match.group(1)))
+                    match = re.search(r"INV-SMP(\d+)$", invoice_no)
+                    if match:
+                        number = int(match.group(1))
 
-    return f"INV-SMP{max_no + 1}"
+                        # Ignore old timestamp invoice numbers like INV-SMP260625163909
+                        if 521 <= number <= 9999:
+                            max_number = max(max_number, number)
+
+        except Exception:
+            pass
+
+    next_number = max_number + 1
+    return f"INV-SMP{next_number}"
 
 
 def full_ship_to(data: Dict[str, Any]) -> str:
-    line1 = data.get("company_name", "")
-    line2 = data.get("address_line", "")
+    line1 = clean(data.get("company_name", ""))
+    line2 = clean(data.get("address_line", ""))
     line3 = ", ".join(
-        [x for x in [data.get("city", ""), data.get("postal_code", "")] if x]
+        [
+            x
+            for x in [
+                clean(data.get("city", "")),
+                clean(data.get("postal_code", "")),
+            ]
+            if x
+        ]
     )
-    line4 = data.get("country", "")
+    line4 = clean(data.get("country", ""))
 
-    return "\n".join([x for x in [line1, line2, line3, line4] if x])
+    return "\n".join([x for x in [line1, line2, line3, line4] if x]).upper()
 
 
 def build_record(form: Dict[str, Any], invoice_no: str | None = None) -> Dict[str, Any]:
@@ -280,16 +340,15 @@ def build_record(form: Dict[str, Any], invoice_no: str | None = None) -> Dict[st
     today = datetime.now().strftime("%b %d, %Y").upper()
     sample_request_date = datetime.now().strftime("%Y-%m-%d")
 
-    data = {k: str(form.get(k, "")).strip() for k in form.keys()}
-    hsn_code = data.get("hsn_code") or DEFAULT_HSN_CODE
+    data = {k: clean(form.get(k, "")) for k in form.keys()}
+    hsn_code = clean(data.get("hsn_code", "")) or DEFAULT_HSN_CODE
+    new_invoice_no = invoice_no or generate_invoice_no()
 
     data.update(
         {
-            "request_id": form.get("request_id")
+            "request_id": clean(form.get("request_id", ""))
             or f"REQ-{uuid.uuid4().hex[:8].upper()}",
-            "invoice_no": invoice_no
-            or form.get("invoice_no")
-            or get_next_invoice_no(),
+            "invoice_no": new_invoice_no,
             "invoice_date": today,
             "quantity": quantity,
             "rate": invoice_calc["rate"],
@@ -303,7 +362,7 @@ def build_record(form: Dict[str, Any], invoice_no: str | None = None) -> Dict[st
             "full_ship_to_address": full_ship_to(data),
             "port_of_receipt": "Hyderabad",
             "port_of_loading": "Hyderabad, India",
-            "port_of_discharge": data.get("country", ""),
+            "port_of_discharge": clean(data.get("country", "")),
             "mode_of_transport": "Air",
             "terms": "100% Advance Payment",
             "s_no": 1,
@@ -314,6 +373,17 @@ def build_record(form: Dict[str, Any], invoice_no: str | None = None) -> Dict[st
             "net_weight": packing_calc["net_weight"],
             "gross_weight": packing_calc["gross_weight"],
             "total_weight": packing_calc["total_weight"],
+            "additional_details": clean(data.get("additional_details", "")),
+            "coa_file_link": clean(data.get("coa_file_link", ""))
+            or get_default_coa_file_link(),
+            "sample_type": clean(data.get("sample_type", "")),
+            "sample_approved_by": clean(data.get("sample_approved_by", "")),
+            "customer_shipping_account": clean(
+                data.get("customer_shipping_account", "")
+            ),
+            "shipping_service": clean(data.get("shipping_service", "")),
+            "requested_bde": clean(data.get("requested_bde", "")),
+            "email_bde": clean(data.get("email_bde", "")),
             "sample_request_date": sample_request_date,
             "document_status": "Previewed",
             "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -376,7 +446,7 @@ def html_to_pdf(html: str, out_path: Path) -> None:
     )
 
 
-def safe_file_name(value: str, fallback: str = "Sample Product") -> str:
+def safe_file_name(value: Any, fallback: str = "Sample Product") -> str:
     cleaned = re.sub(r"[^A-Za-z0-9\-_. ]+", "", str(value or "").strip())
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned or fallback
@@ -426,7 +496,7 @@ def post_to_apps_script(
 ) -> Dict[str, Any]:
     webapp_url = os.getenv("APPS_SCRIPT_WEBAPP_URL", "").strip()
     secret = os.getenv("APPS_SCRIPT_SECRET", "").strip()
-    email_to = os.getenv("EMAIL_TO", "shiva@reveda.com").strip()
+    email_to = os.getenv("EMAIL_TO", "help@medikonda.com").strip()
 
     if not webapp_url:
         return {
@@ -470,12 +540,25 @@ def post_to_apps_script(
     try:
         response = requests.post(webapp_url, json=payload, timeout=timeout_seconds)
         response.raise_for_status()
-        return response.json()
+
+        try:
+            return response.json()
+        except Exception:
+            return {
+                "status": "failed",
+                "message": response.text[:500],
+            }
 
     except requests.exceptions.Timeout:
         return {
             "status": "queued",
             "message": "Apps Script is taking longer than expected. Request may still be processing.",
+        }
+
+    except requests.exceptions.RequestException as exc:
+        return {
+            "status": "failed",
+            "message": str(exc),
         }
 
     except Exception as exc:
@@ -508,7 +591,8 @@ def finalize_and_email_record(record: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     apps_script_result = post_to_apps_script(record, pdf_paths)
-    status = apps_script_result.get("status", "failed")
+    status = clean(apps_script_result.get("status", "failed")).lower()
+    message = clean(apps_script_result.get("message", ""))
 
     if status == "sent":
         record["email_status"] = "Sent"
@@ -517,20 +601,21 @@ def finalize_and_email_record(record: Dict[str, Any]) -> Dict[str, Any]:
 
     elif status == "queued":
         record["email_status"] = "Queued"
-        record["email_error"] = apps_script_result.get("message", "")
+        record["email_sent_at"] = ""
+        record["email_error"] = message
 
-    elif status == "saved":
+    elif status in {"saved", "success", "processing"}:
         record["email_status"] = "Pending"
-        record["email_error"] = ""
+        record["email_sent_at"] = ""
+        record["email_error"] = message
 
     else:
         record["email_status"] = "Failed"
-        record["email_error"] = apps_script_result.get(
-            "message", "Unknown Apps Script error"
-        )
+        record["email_sent_at"] = ""
+        record["email_error"] = message or "Unknown Apps Script error"
 
     record["apps_script_status"] = status
-    record["apps_script_message"] = apps_script_result.get("message", "")
+    record["apps_script_message"] = message
 
     save_local_record(record)
 
@@ -547,7 +632,45 @@ def form_page():
         bill_to_display=BILL_TO_DISPLAY,
         fixed_bill_to=FIXED_BILL_TO,
         default_hsn_code=DEFAULT_HSN_CODE,
+        default_coa_file_link=get_default_coa_file_link(),
     )
+
+
+@app.route("/settings/coa-link", methods=["POST"])
+def save_coa_link():
+    data = request.get_json(silent=True) or {}
+    coa_link = clean(data.get("coa_file_link", ""))
+
+    if not coa_link:
+        return {
+            "status": "failed",
+            "message": "COA link is empty.",
+        }, 400
+
+    if not coa_link.startswith(("http://", "https://")):
+        return {
+            "status": "failed",
+            "message": "Please enter a valid Drive link starting with http or https.",
+        }, 400
+
+    set_default_coa_file_link(coa_link)
+
+    return {
+        "status": "saved",
+        "message": "COA link saved for future use.",
+        "coa_file_link": coa_link,
+    }
+
+
+@app.route("/settings/coa-link/remove", methods=["POST"])
+def remove_coa_link():
+    remove_default_coa_file_link()
+
+    return {
+        "status": "removed",
+        "message": "Saved COA link removed. Default link restored.",
+        "coa_file_link": get_default_coa_file_link(),
+    }
 
 
 @app.route("/preview", methods=["POST"])
@@ -566,11 +689,18 @@ def preview():
 @app.route("/save", methods=["POST"])
 def save():
     payload = request.form.get("payload", "{}")
-    record = json.loads(payload)
+
+    try:
+        record = json.loads(payload)
+    except json.JSONDecodeError:
+        flash("Invalid preview payload. Please go back and submit the form again.")
+        return redirect(url_for("form_page"))
 
     result = finalize_and_email_record(record)
     email_result = result["email_result"]
-    status = email_result.get("status")
+
+    status = clean(email_result.get("status", "failed")).lower()
+    message = clean(email_result.get("message", ""))
 
     if status == "sent":
         flash("Document saved, PDFs uploaded, and email sent successfully.")
@@ -578,11 +708,11 @@ def save():
     elif status == "queued":
         flash("Document saved, PDFs uploaded, and email queued successfully.")
 
-    elif status == "saved":
+    elif status in {"saved", "success", "processing"}:
         flash("Document saved and sent to Google Sheet for email processing.")
 
     else:
-        flash(f"Document saved, but email processing failed: {email_result.get('message')}")
+        flash(f"Document saved, but email processing failed: {message}")
 
     return redirect(url_for("record_page", request_id=record["request_id"]))
 
@@ -612,6 +742,8 @@ def download_pdf(doc_type: str, request_id: str):
     logo_path = (BASE_DIR / "static" / "logo.png").resolve().as_uri()
     css_path = (BASE_DIR / "static" / "styles.css").resolve().as_uri()
 
+    product_file_name = safe_file_name(record.get("product_name"), "Sample Product")
+
     if doc_type == "invoice":
         html = render_template(
             "invoice.html",
@@ -620,7 +752,7 @@ def download_pdf(doc_type: str, request_id: str):
             logo_path=logo_path,
             css_path=css_path,
         )
-        filename = f"{safe_file_name(record.get('product_name'), 'Sample Product')}-Invoice.pdf"
+        filename = f"{product_file_name}-Invoice.pdf"
 
     elif doc_type == "packing":
         html = render_template(
@@ -630,7 +762,7 @@ def download_pdf(doc_type: str, request_id: str):
             logo_path=logo_path,
             css_path=css_path,
         )
-        filename = f"{safe_file_name(record.get('product_name'), 'Sample Product')}-Packing list.pdf"
+        filename = f"{product_file_name}-Packing list.pdf"
 
     else:
         flash("Invalid document type")
@@ -643,4 +775,4 @@ def download_pdf(doc_type: str, request_id: str):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5050)

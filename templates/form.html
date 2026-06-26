@@ -1,38 +1,77 @@
 {% extends "base.html" %}
 {% block title %}New Sample Dispatch Request{% endblock %}
 {% block content %}
+
 <form method="post" action="{{ url_for('preview') }}" enctype="multipart/form-data">
-  <div class="card">
-    <h1>Sample Dispatch Form - Updated Version</h1>
-    <p>Single product per request. One Sample Invoice and one Packing List will be generated using the v15 document template.</p>
-  </div>
 
   <div class="card">
     <h2>1. Client Details</h2>
     <div class="grid">
-      <div class="field"><label>Client Name *</label><input name="client_name" required placeholder="Substance Elements"></div>
-      <div class="field"><label>Email *</label><input type="email" name="email" required placeholder="client@example.com"></div>
-      <div class="field"><label>Phone Number *</label><input name="phone_number" required></div>
+      <div class="field">
+        <label>Client Name *</label>
+        <input name="client_name" required placeholder="Write Your Client Name">
+      </div>
+
+      <div class="field">
+        <label>Email *</label>
+        <input type="email" name="email" required placeholder="client@example.com">
+      </div>
+
+      <div class="field">
+        <label>Phone Number *</label>
+        <input name="phone_number" required>
+      </div>
     </div>
   </div>
 
   <div class="card">
     <h2>2. Shipping Details</h2>
     <div class="grid">
-      <div class="field"><label>Company Name *</label><input name="company_name" required placeholder="Substance Elements"></div>
-      <div class="field"><label>Country *</label><input name="country" required placeholder="India"></div>
-      <div class="field"><label>Address Line *</label><input name="address_line" required placeholder="Friends Colony Street No-2"></div>
-      <div class="field"><label>City *</label><input name="city" required placeholder="Hyderabad"></div>
-      <div class="field"><label>Postal / Zip Code *</label><input name="postal_code" required placeholder="500089"></div>
+      <div class="field">
+        <label>Company Name *</label>
+        <input name="company_name" required placeholder="Medikonda Nutrients">
+      </div>
+
+      <div class="field">
+        <label>Country *</label>
+        <input name="country" required placeholder="United states of America">
+      </div>
+
+      <div class="field">
+        <label>Address Line *</label>
+        <input name="address_line" required placeholder="201 Main St, Springfield etc...">
+      </div>
+
+      <div class="field">
+        <label>State *</label>
+        <input name="city" required placeholder="California">
+      </div>
+
+      <div class="field">
+        <label>Postal / Zip Code *</label>
+        <input name="postal_code" required placeholder="90001">
+      </div>
     </div>
   </div>
 
   <div class="card">
     <h2>3. Product Details</h2>
     <div class="grid">
-      <div class="field"><label>Product Name *</label><input name="product_name" required placeholder="Moringa Powder"></div>
-      <div class="field"><label>HSN Code * <span class="hint">default value, editable</span></label><input name="hsn_code" required value="{{ default_hsn_code }}"></div>
-      <div class="field"><label>Quantity / Net Weight *</label><input type="number" name="quantity" required step="0.5" min="0.5" placeholder="1.0"></div>
+      <div class="field">
+        <label>Product Name *</label>
+        <input name="product_name" required placeholder="Organic Moringa Powder">
+      </div>
+
+      <div class="field">
+        <label>HSN Code * <span class="hint">default value, editable</span></label>
+        <input name="hsn_code" required value="{{ default_hsn_code }}">
+      </div>
+
+      <div class="field">
+        <label>Quantity / Net Weight (Kg) *</label>
+        <input type="number" name="quantity" required step="0.5" min="0.5" placeholder="1.0">
+      </div>
+
       <div class="field">
         <label>Sample Type *</label>
         <select name="sample_type" required>
@@ -40,11 +79,14 @@
           <option value="Paid Sample">Paid Sample</option>
         </select>
       </div>
+
       <div class="field">
         <label>Select Box / Dimension</label>
         <select name="selected_box">
           <option value="box2">Box 2 - default for manual quantity</option>
-          {% for key, box in boxes.items() %}<option value="{{ key }}">{{ box.label }} - {{ box.dimension }}</option>{% endfor %}
+          {% for key, box in boxes.items() %}
+            <option value="{{ key }}">{{ box.label }} - {{ box.dimension }}</option>
+          {% endfor %}
         </select>
         <div class="hint">Qty 0.5 auto selects Box 1. Qty 1 auto selects Box 2. For 20-25 kg select Box 3 or Box 4.</div>
       </div>
@@ -53,8 +95,13 @@
 
   <div class="card">
     <h2>4. Sample Approval Details</h2>
+
     <div class="grid">
-      <div class="field"><label>Customer Shipping Account</label><input name="customer_shipping_account" placeholder="123456789"></div>
+      <div class="field">
+        <label>Customer Shipping Account</label>
+        <input name="customer_shipping_account" placeholder="123456789">
+      </div>
+
       <div class="field">
         <label>Service</label>
         <select name="shipping_service">
@@ -63,24 +110,219 @@
           <option value="DHL">DHL</option>
         </select>
       </div>
-      <div class="field"><label>Requested BDE *</label><input name="requested_bde" required placeholder="Deva"></div>
-      <div class="field"><label>Email BDE *</label><input type="email" name="email_bde" required placeholder="deva@reveda.com"></div>
-      <div class="field"><label>Sample Approved By *</label><input name="sample_approved_by" required></div>
-      <div class="field"><label>COA File Link</label><input name="coa_file_link" placeholder="Paste Google Drive / file link"></div>
-      <div class="field"><label>Additional Details</label><textarea name="additional_details"></textarea></div>
+
+      <div class="field">
+        <label>Requested BDE *</label>
+        <input name="requested_bde" required placeholder="Charlotte">
+      </div>
+
+      <div class="field">
+        <label>Email BDE *</label>
+        <input type="email" name="email_bde" required placeholder="Charlotte@medikonda.com">
+      </div>
+
+      <div class="field">
+        <label>Sample Approved By *</label>
+        <select name="sample_approved_by" id="sample_approved_by" required>
+          <option value="">Select approver</option>
+          <option value="Sales Head" {% if record and record.sample_approved_by == "Sales Head" %}selected{% endif %}>Sales Head</option>
+          <option value="General Manager" {% if record and record.sample_approved_by == "General Manager" %}selected{% endif %}>General Manager</option>
+        </select>
+      </div>
+
+      <div class="field coa-field full-width">
+        <label for="coa_file_link">COA File Link</label>
+
+        <div class="coa-saved-status" id="coaSavedStatus">
+          {% if default_coa_file_link %}
+            Default COA folder link is active for every new request.
+          {% else %}
+            No default COA link saved. Paste a Drive folder link and click Add Link.
+          {% endif %}
+        </div>
+
+        <div class="coa-input-wrap">
+          <input
+            type="url"
+            name="coa_file_link"
+            id="coa_file_link"
+            placeholder="Paste Google Drive COA folder link"
+            value="{% if record is defined and record and record.coa_file_link %}{{ record.coa_file_link }}{% else %}{{ default_coa_file_link }}{% endif %}"
+            {% if default_coa_file_link %}readonly{% endif %}
+          >
+
+          <button type="button" class="coa-edit-btn" id="editCoaLinkBtn">
+            Edit
+          </button>
+
+          <button type="button" class="coa-btn" id="saveCoaLinkBtn" disabled>
+            Add Link
+          </button>
+
+          <button type="button" class="coa-remove-btn" id="removeCoaLinkBtn">
+            Remove
+          </button>
+        </div>
+
+        <div class="hint coa-hint">
+          This COA Drive folder link will be auto-filled for every new request and will appear in the email body.
+        </div>
+      </div>
+
+      <div class="field full-width">
+        <label>Additional Details</label>
+        <textarea name="additional_details"></textarea>
+      </div>
     </div>
   </div>
 
   <div class="card">
-  <h2>5. Document Settings</h2>
-  <div class="grid">
-    <div class="field">
-      <label>Bill To</label>
-      <input value="{{ bill_to_display }}" readonly>
+    <h2>5. Document Settings</h2>
+
+    <div class="grid">
+      <div class="field">
+        <label>Bill To</label>
+        <input value="{{ bill_to_display }}" readonly>
+      </div>
+    </div>
+
+    <div class="hint">Bill To is fixed as REVEDA. Full address will be added automatically in documents.</div>
+
+    <div class="actions">
+      <button type="submit">Preview Calculation & Documents</button>
     </div>
   </div>
-  <div class="hint">Bill To is fixed as REVEDA. Full address will be added automatically in documents.</div>
-  <div class="actions"><button type="submit">Preview Calculation & Documents</button></div>
-</div>
+
 </form>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("coa_file_link");
+    const editBtn = document.getElementById("editCoaLinkBtn");
+    const saveBtn = document.getElementById("saveCoaLinkBtn");
+    const removeBtn = document.getElementById("removeCoaLinkBtn");
+    const statusBox = document.getElementById("coaSavedStatus");
+
+    function setStatus(message, type) {
+      statusBox.textContent = message;
+      statusBox.className = "coa-saved-status";
+
+      if (type === "success") {
+        statusBox.classList.add("coa-success");
+      }
+
+      if (type === "error") {
+        statusBox.classList.add("coa-error");
+      }
+    }
+
+    function updateSaveButtonState() {
+      const value = input.value.trim();
+      const isReadonly = input.hasAttribute("readonly");
+
+      if (isReadonly) {
+        saveBtn.disabled = true;
+        return;
+      }
+
+      saveBtn.disabled = value.length === 0;
+    }
+
+    editBtn.addEventListener("click", function () {
+      input.removeAttribute("readonly");
+      input.focus();
+      updateSaveButtonState();
+      setStatus("Edit the COA link and click Add Link to save it for future requests.", "");
+    });
+
+    input.addEventListener("input", updateSaveButtonState);
+
+    saveBtn.addEventListener("click", async function () {
+      const coaLink = input.value.trim();
+
+      if (!coaLink) {
+        saveBtn.disabled = true;
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      try {
+        const response = await fetch("{{ url_for('save_coa_link') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            coa_file_link: coaLink
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setStatus(result.message || "Could not save COA link.", "error");
+          input.removeAttribute("readonly");
+        } else {
+          input.value = result.coa_file_link || coaLink;
+          input.setAttribute("readonly", "readonly");
+          setStatus("COA link saved. It will be used for every new request.", "success");
+        }
+
+      } catch (error) {
+        setStatus("Could not save COA link. Please try again.", "error");
+        input.removeAttribute("readonly");
+
+      } finally {
+        saveBtn.textContent = "Add Link";
+        updateSaveButtonState();
+      }
+    });
+
+    removeBtn.addEventListener("click", async function () {
+      removeBtn.disabled = true;
+      removeBtn.textContent = "Removing...";
+
+      try {
+        const response = await fetch("{{ url_for('remove_coa_link') }}", {
+          method: "POST"
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setStatus(result.message || "Could not remove COA link.", "error");
+        } else {
+          input.value = result.coa_file_link || "";
+          input.setAttribute("readonly", "readonly");
+
+          if (input.value.trim()) {
+            setStatus("Saved custom COA link removed. Default COA folder link is restored.", "success");
+          } else {
+            setStatus("COA link removed. Click Edit and add a new link.", "success");
+            input.removeAttribute("readonly");
+          }
+        }
+
+      } catch (error) {
+        setStatus("Could not remove COA link. Please try again.", "error");
+
+      } finally {
+        removeBtn.disabled = false;
+        removeBtn.textContent = "Remove";
+        updateSaveButtonState();
+      }
+    });
+
+    if (!input.value.trim()) {
+      input.removeAttribute("readonly");
+    }
+
+    updateSaveButtonState();
+  });
+</script>
+
 {% endblock %}
+```

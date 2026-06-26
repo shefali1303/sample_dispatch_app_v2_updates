@@ -93,18 +93,16 @@ block content %}
     </div>
   </div>
   <div class="summary-box">
-    <h3>Email Action</h3>
-    <div class="summary-row">
-      <span>Fixed Recipient</span><span>{{ email_to }}</span>
-    </div>
-    <!-- <div class="summary-row"><span>Mode</span><span>{% if email_dry_run %}Dry run - no real email will be sent{% else %}Live email sending{% endif %}</span></div> -->
-    <div class="notice">
-      Documents will be saved and sent through Google Sheet automation.
-    </div>
-    <p class="hint">
-      Final button will save the request, generate both v15 PDFs, and send them
-      to the fixed email recipient.
-    </p>
+  <h3>Additional Details</h3>
+
+  <div class="summary-row">
+    <span>COA File Link</span>
+    <span>{{ record.coa_file_link or '-' }}</span>
+  </div>
+
+  <div class="summary-row">
+    <span>Additional Details</span>
+    <span>{{ record.additional_details or '-' }}</span>
   </div>
 </div>
 <div class="card">
@@ -120,20 +118,12 @@ block content %}
   </form>
 
   <div id="dispatchLoader" class="dispatch-loader-overlay">
-    <div class="dispatch-loader-card">
-      <div class="dispatch-loader-logo-ring">
-        <div class="dispatch-loader-spinner"></div>
-        <img
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="Medikonda Nutrients"
-        />
-      </div>
-
-      <h2>Processing Sample Dispatch</h2>
-      <p>
-        Your sample form is being saved securely and has been sent to the
-        Logistics Department.
-      </p>
+  <div class="dispatch-loader-card">
+    <div class="dispatch-loader-progress">
+      <span></span>
+    </div>
+  </div>
+</div>
 
       <div class="dispatch-loader-progress">
         <span></span>

@@ -1,10 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Saved Request{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Request Saved Successfully</h1>
-  <p><strong>Invoice No:</strong> {{ record.invoice_no }}</p>
-  <p><strong>Request ID:</strong> {{ record.request_id }}</p>
+
+<div class="card success-card">
+  <div class="success-content">
+    <div class="success-left">
+      <h1>Request Saved Successfully</h1>
+      <p class="success-message">Document saved, PDFs uploaded, and email sent successfully.</p>
+      <p><strong>Invoice No:</strong> {{ record.invoice_no }}</p>
+      <p><strong>Request ID:</strong> {{ record.request_id }}</p>
+    </div>
+
+    <div class="success-right">
+    <a
+  class="btn new-request-btn"
+  href="{{ url_for('form_page') }}"
+  style="background:#76b82a !important; border-color:#76b82a !important; color:#ffffff !important;"
+>
+  New Request
+</a>
+    </div>
+  </div>
+
   <div class="actions">
     <a class="btn secondary" target="_blank" href="{{ url_for('invoice_html', request_id=record.request_id) }}">Preview Sample Invoice</a>
     <a class="btn secondary" target="_blank" href="{{ url_for('packing_html', request_id=record.request_id) }}">Preview Packing List</a>
@@ -12,4 +29,5 @@
     <a class="btn" href="{{ url_for('download_pdf', doc_type='packing', request_id=record.request_id) }}">Download Packing List PDF</a>
   </div>
 </div>
+
 {% endblock %}

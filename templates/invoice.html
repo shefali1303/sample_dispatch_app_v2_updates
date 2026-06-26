@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <title>{{ record.invoice_no }} Sample Invoice</title>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
     <!-- <link rel="stylesheet" href="../static/styles.css"> -->
@@ -33,10 +34,10 @@
           <tr>
             <td class="center logo-cell">
               <img
-  class="logo"
-  src="{% if pdf_mode %}{{ logo_path }}{% else %}{{ url_for('static', filename='logo.png') }}{% endif %}"
-  alt="Medikonda Nutrients Logo"
-/>
+                class="logo"
+                src="{% if pdf_mode %}{{ logo_path }}{% else %}{{ url_for('static', filename='logo.png') }}{% endif %}"
+                alt="Medikonda Nutrients Logo"
+              />
             </td>
             <td class="invoice-company">
               <div class="bold">Medikonda Nutrients</div>
@@ -50,23 +51,19 @@
 
         <table class="meta">
           <colgroup>
-            <col style="width: 24%" />
-            <col style="width: 3%" />
+            <col style="width: 27%" />
             <col style="width: 73%" />
           </colgroup>
           <tr>
             <td class="bold">Invoice No</td>
-            <td>:</td>
             <td>{{ record.invoice_no }}</td>
           </tr>
           <tr>
             <td class="bold">Invoice Date</td>
-            <td>:</td>
             <td>{{ record.invoice_date }}</td>
           </tr>
           <tr>
             <td class="bold">Terms</td>
-            <td>:</td>
             <td>{{ record.terms }}</td>
           </tr>
         </table>

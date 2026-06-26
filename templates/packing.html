@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <title>{{ record.invoice_no }} Packing List</title>
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
-    <!-- <link rel="stylesheet" href="../static/styles.css"> -->
+
     {% if pdf_mode %}
     <link rel="stylesheet" href="{{ css_path }}" />
     {% else %}
@@ -14,8 +14,8 @@
     />
     {% endif %}
   </head>
+
   <body class="document-body">
-    <!-- <div class="pdf-actions"><button onclick="window.print()">Print</button></div> -->
     {% if not pdf_mode %}
     <div class="pdf-actions">
       <button onclick="window.print()">Print</button>
@@ -23,28 +23,23 @@
     {% endif %}
 
     <section class="page v15-page" id="packing-list">
-      <div class="packing-top">
-        <div class="packing-name">Medikonda Nutrients</div>
-        <div class="packing-address">
-          Plot 94, Road 72, Jubilee Hills, Hyderabad 500096<br />8906448888 |
-          hello@medikonda.com | www.medikonda.com
-        </div>
-        <div class="packing-logo-holder">
-          <img
-  class="logo logo-small"
-  src="{% if pdf_mode %}{{ logo_path }}{% else %}{{ url_for('static', filename='logo.png') }}{% endif %}"
-  alt="Medikonda Nutrients Logo"
-/>
-        </div>
-        <div class="top-rule"></div>
+      <div class="packing-top packing-logo-only">
+        <img
+          class="logo logo-small"
+          src="{% if pdf_mode %}{{ logo_path }}{% else %}{{ url_for('static', filename='logo.png') }}{% endif %}"
+          alt="Medikonda Nutrients Logo"
+        />
       </div>
 
       <div class="pack-box">
         <div class="pack-title">Packing List</div>
+
         <div class="shipper">
-          <strong>SHIPPER:</strong><br /><strong>Medikonda Nutrients</strong
-          ><br />Survey No. 805/E, Gongloor Village, Pulkal Mandal<br />Sangareddy
-          Telangana 502293, India<br />GSTIN 36ABJFM2881R1ZE
+          <strong>SHIPPER:</strong><br />
+          <strong>Medikonda Nutrients</strong><br />
+          Survey No. 805/E, Gongloor Village, Pulkal Mandal<br />
+          Sangareddy Telangana 502293, India<br />
+          GSTIN 36ABJFM2881R1ZE
         </div>
 
         <table class="pack-info">
@@ -55,20 +50,19 @@
           </colgroup>
           <tr>
             <td>
-              <span class="col-head">Bill To</span
-              ><span class="pre-text">{{ record.selected_bill_to }}</span>
+              <span class="col-head">Bill To</span>
+              <span class="pre-text">{{ record.selected_bill_to }}</span>
             </td>
             <td>
-              <span class="col-head">Ship To</span
-              ><span class="pre-text">{{ record.full_ship_to_address }}</span>
+              <span class="col-head">Ship To</span>
+              <span class="pre-text">{{ record.full_ship_to_address }}</span>
             </td>
             <td class="ports">
-              <span class="col-head">Receipts</span>Port of Receipt: {{
-              record.port_of_receipt }}<br />Port of Loading: {{
-              record.port_of_loading }}<br />Port of Discharge: {{
-              record.port_of_discharge }}<br /><br /><span class="fda-reg"
-                >FDA Reg No.: 14759970706</span
-              >
+              <span class="col-head">Receipts</span>
+              Port of Receipt: {{ record.port_of_receipt }}<br />
+              Port of Loading: {{ record.port_of_loading }}<br />
+              Port of Discharge: {{ record.port_of_discharge }}<br /><br />
+              <span class="fda-reg">FDA Reg No.: 14759970706</span>
             </td>
           </tr>
         </table>
@@ -85,8 +79,8 @@
             <td></td>
             <td></td>
             <td>
-              <strong>Mode of Transport</strong><br />{{
-              record.mode_of_transport }}
+              <strong>Mode of Transport</strong><br />
+              {{ record.mode_of_transport }}
             </td>
           </tr>
         </table>
@@ -126,6 +120,7 @@
           </tr>
         </table>
       </div>
+
       <div class="sign-footer">
         For Medikonda Nutrients<br /><br />Authorised Signatory
       </div>
