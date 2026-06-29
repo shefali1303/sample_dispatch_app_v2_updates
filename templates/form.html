@@ -29,27 +29,27 @@
     <div class="grid">
       <div class="field">
         <label>Company Name *</label>
-        <input name="company_name" required placeholder="Medikonda Nutrients">
+        <input name="company_name" required placeholder="Enter the Client's Company Name">
       </div>
 
       <div class="field">
         <label>Country *</label>
-        <input name="country" required placeholder="United states of America">
+        <input name="country" required placeholder="Shipping To Country">
       </div>
 
       <div class="field">
         <label>Address Line *</label>
-        <input name="address_line" required placeholder="201 Main St, Springfield etc...">
+        <input name="address_line" required placeholder="Add Shipping Address">
       </div>
 
       <div class="field">
         <label>State *</label>
-        <input name="city" required placeholder="California">
+        <input name="city" required placeholder="Add State">
       </div>
 
       <div class="field">
         <label>Postal / Zip Code *</label>
-        <input name="postal_code" required placeholder="90001">
+        <input name="postal_code" required placeholder="Eg:90001">
       </div>
     </div>
   </div>
@@ -59,11 +59,11 @@
     <div class="grid">
       <div class="field">
         <label>Product Name *</label>
-        <input name="product_name" required placeholder="Organic Moringa Powder">
+        <input name="product_name" required placeholder="Which product is being shipped?">
       </div>
 
       <div class="field">
-        <label>HSN Code * <span class="hint">default value, editable</span></label>
+        <label>HSN Code * <span class="hint">Default value, editable</span></label>
         <input name="hsn_code" required value="{{ default_hsn_code }}">
       </div>
 
@@ -81,14 +81,14 @@
       </div>
 
       <div class="field">
-        <label>Select Box / Dimension</label>
+        <label>Select Box / Dimension *</label>
         <select name="selected_box">
           <option value="box2">Box 2 - default for manual quantity</option>
           {% for key, box in boxes.items() %}
             <option value="{{ key }}">{{ box.label }} - {{ box.dimension }}</option>
           {% endfor %}
         </select>
-        <div class="hint">Qty 0.5 auto selects Box 1. Qty 1 auto selects Box 2. For 20-25 kg select Box 3 or Box 4.</div>
+        <div class="hint"></div>
       </div>
     </div>
   </div>
@@ -98,12 +98,12 @@
 
     <div class="grid">
       <div class="field">
-        <label>Customer Shipping Account</label>
-        <input name="customer_shipping_account" placeholder="123456789">
+        <label>Customer Shipping Account *</label>
+        <input name="customer_shipping_account" placeholder="Eg: 123456789">
       </div>
 
       <div class="field">
-        <label>Service</label>
+        <label>Service *</label>
         <select name="shipping_service">
           <option value="FedEx">FedEx</option>
           <option value="UPS">UPS</option>
@@ -113,12 +113,12 @@
 
       <div class="field">
         <label>Requested BDE *</label>
-        <input name="requested_bde" required placeholder="Charlotte">
+        <input name="requested_bde" required placeholder="Who requested this sample? Enter the BDE's name.">
       </div>
 
       <div class="field">
         <label>Email BDE *</label>
-        <input type="email" name="email_bde" required placeholder="Charlotte@medikonda.com">
+        <input type="email" name="email_bde" required placeholder="xyz@medikonda.com">
       </div>
 
       <div class="field">

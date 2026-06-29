@@ -288,30 +288,32 @@ def calculate_packing(quantity: float, manual_box: str | None) -> Dict[str, Any]
 
 
 def generate_invoice_no() -> str:
-    start_number = 521
-    max_number = start_number - 1
+    if not APPS_SCRIPT_WEBAPP_URL or not APPS_SCRIPT_SECRET:
+        raise RuntimeError(
+            "Apps Script URL or secret is missing. Invoice number cannot be generated safely."
+        )
 
-    if RECORDS_CSV.exists():
-        try:
-            with RECORDS_CSV.open("r", newline="", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
+    response = requests.post(
+        APPS_SCRIPT_WEBAPP_URL,
+        json={
+            "secret": APPS_SCRIPT_SECRET,
+            "action": "next_invoice_no",
+        },
+        timeout=APPS_SCRIPT_TIMEOUT_SECONDS,
+    )
 
-                for row in reader:
-                    invoice_no = clean(row.get("invoice_no", ""))
+    response.raise_for_status()
+    payload = response.json()
 
-                    match = re.search(r"INV-SMP(\d+)$", invoice_no)
-                    if match:
-                        number = int(match.group(1))
+    invoice_no = clean(payload.get("invoice_no", ""))
 
-                        # Ignore old timestamp invoice numbers like INV-SMP260625163909
-                        if 521 <= number <= 9999:
-                            max_number = max(max_number, number)
+    if not payload.get("ok") or not invoice_no:
+        raise RuntimeError(
+            "Could not generate invoice number from Google Sheet: "
+            + str(payload.get("message") or payload.get("error") or "Unknown error")
+        )
 
-        except Exception:
-            pass
-
-    next_number = max_number + 1
-    return f"INV-SMP{next_number}"
+    return invoice_no
 
 
 def full_ship_to(data: Dict[str, Any]) -> str:
