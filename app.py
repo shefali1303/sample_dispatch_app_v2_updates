@@ -27,6 +27,11 @@ GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
 load_dotenv(BASE_DIR / ".env")
 
+APPS_SCRIPT_WEBAPP_URL = os.getenv("APPS_SCRIPT_WEBAPP_URL", "").strip()
+APPS_SCRIPT_SECRET = os.getenv("APPS_SCRIPT_SECRET", "").strip()
+APPS_SCRIPT_TIMEOUT_SECONDS = int(os.getenv("APPS_SCRIPT_TIMEOUT_SECONDS", "35"))
+
+
 DEFAULT_COA_FILE_LINK = os.getenv(
     "DEFAULT_COA_FILE_LINK",
     "https://drive.google.com/drive/folders/1Gvs40ZHAKa7NxZR6s-zezycXQNfKCpWg?usp=drive_link",
@@ -303,7 +308,14 @@ def generate_invoice_no() -> str:
     )
 
     response.raise_for_status()
-    payload = response.json()
+
+    try:
+        payload = response.json()
+    except ValueError:
+        raise RuntimeError(
+            "Apps Script did not return JSON. Response was: "
+            + response.text[:500]
+        )
 
     invoice_no = clean(payload.get("invoice_no", ""))
 
